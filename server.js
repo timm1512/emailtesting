@@ -19,7 +19,7 @@ let s = 10,
 		mm = '*',
 		y = '*';
 
-let ATRange = [5, 9, 15];
+let ATRange = [5, 9, 17];
 let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
 	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"]};
 
