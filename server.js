@@ -12,7 +12,14 @@ const schedule = require('node-schedule');
 require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
-const GO = schedule.scheduleJob('10 * * * * *', function() {
+let s = 10,
+		m = '*',
+		h = '*',
+		dd = '*',
+		mm = '*',
+		y = '*';
+
+const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 //const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
 	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
