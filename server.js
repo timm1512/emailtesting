@@ -23,6 +23,8 @@ let ATRange = [5, 9, 15];
 let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
 	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"]};
 
+	//change to test pull
+
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 //const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
