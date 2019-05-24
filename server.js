@@ -19,6 +19,10 @@ let s = 10,
 		mm = '*',
 		y = '*';
 
+let ATRange = [5, 9, 15];
+let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
+	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"]};
+
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 //const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
@@ -36,31 +40,31 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 			let AT = T+0.33*e-0.7*v/3.6-4;
 
 			if(body.weather[0].description.includes('rain')) {
-				if(AT < 5) {
-					clothing = `Jumper, breaker, thermal and gloves`;
+				if(AT < ATRange[0]) {
+					clothingText = clothing[0][0];
 				}
-			 if(AT < 9 && AT > 5) {
-				clothing = `Jumper, breaker and gloves`;
-			} if(AT < 15 && AT > 9) {
-				clothing = `Breaker only`;
+			 if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing[0][1];
+			} if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing[0][2];
 			} else {
-				clothing = ``;
+				clothingText = ``;
 			}} else {
-				if(AT < 5) {
-					clothing = `Jumper, breaker, thermal and gloves`;
+				if(AT < ATRange[0]) {
+					clothingText = clothing[1][0];
 				}
-			 if(AT < 9 && AT > 5) {
-				clothing = `Jumper, breaker and gloves`;
-			} if(AT < 15 && AT > 9) {
-				clothing = `Jumper only`;
+			 if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing[1][1];
+			} if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing[1][2];
 			} else {
-				clothing = ``;
+				clothingText = ``;
 			}}
 
 			T = T.toFixed(1);
 			AT = AT.toFixed(1);
 			let weatherText = `<table style="width:100%"><tr><th>Conditions</th><th>Temperature</th> <th>Humidity</th><th>Wind speed</th><th>Apparent temperature</th></tr><tr><td><a href="http://www.bom.gov.au/products/IDR024.loop.shtml">${body.weather[0].description}</a></td><td>${T} degrees</td> <td>${R} %</td><td>${v} km/hr</td><td>${AT} degrees</td></tr></table>`;
-			HTMLText = HTMLText + '<br />' + clothing;
+			HTMLText = HTMLText + '<br />' + clothingText;
 			HTMLText = HTMLText + '<br />' + weatherText + '<br />';
 		}))
 
