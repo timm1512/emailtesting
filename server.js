@@ -13,13 +13,13 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 let s = 10,
-		m = '*',
-		h = '*',
+		m = 10,
+		h = 8,
 		dd = '*',
 		mm = '*',
 		y = '*';
 
-let ATRange = [5, 9, 17];
+let ATRange = [5, 9, 15];
 let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
 	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"]};
 
