@@ -19,10 +19,6 @@ let s = 10,
 		mm = '*',
 		y = '*';
 
-let clothing = {
-	"rain":
-}
-
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 //const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
@@ -64,6 +60,7 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 			T = T.toFixed(1);
 			AT = AT.toFixed(1);
 			let weatherText = `<table style="width:100%"><tr><th>Conditions</th><th>Temperature</th> <th>Humidity</th><th>Wind speed</th><th>Apparent temperature</th></tr><tr><td><a href="http://www.bom.gov.au/products/IDR024.loop.shtml">${body.weather[0].description}</a></td><td>${T} degrees</td> <td>${R} %</td><td>${v} km/hr</td><td>${AT} degrees</td></tr></table>`;
+			HTMLText = HTMLText + '<br />' + clothing;
 			HTMLText = HTMLText + '<br />' + weatherText + '<br />';
 		}))
 
