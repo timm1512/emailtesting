@@ -43,22 +43,22 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 
 			if(body.weather[0].description.includes('rain')) {
 				if(AT < ATRange[0]) {
-					clothingText = clothing[0][0];
+					clothingText = clothing.rain[0];
 				}
 			 if(AT < ATRange[1] && AT > ATRange[0]) {
-				clothingText = clothing[0][1];
+				clothingText = clothing.rain[1];
 			} if(AT < ATRange[2] && AT > ATRange[1]) {
-				clothingText = clothing[0][2];
+				clothingText = clothing.rain[2];
 			} else {
 				clothingText = ``;
 			}} else {
 				if(AT < ATRange[0]) {
-					clothingText = clothing[1][0];
+					clothingText = clothing.dry[0];
 				}
 			 if(AT < ATRange[1] && AT > ATRange[0]) {
-				clothingText = clothing[1][1];
+				clothingText = clothing.dry[1];
 			} if(AT < ATRange[2] && AT > ATRange[1]) {
-				clothingText = clothing[1][2];
+				clothingText = clothing.dry[2];
 			} else {
 				clothingText = ``;
 			}}
