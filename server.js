@@ -19,6 +19,10 @@ let s = 10,
 		mm = '*',
 		y = '*';
 
+let clothing = {
+	"rain":
+}
+
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 //const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
@@ -34,6 +38,28 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 			let R = body.main.humidity;
 			e = R/100*6.105*Math.exp((17.27*T/(237.7+T)));
 			let AT = T+0.33*e-0.7*v/3.6-4;
+
+			if(body.weather[0].description.includes('rain')) {
+				if(AT < 5) {
+					clothing = `Jumper, breaker, thermal and gloves`;
+				}
+			 if(AT < 9 && AT > 5) {
+				clothing = `Jumper, breaker and gloves`;
+			} if(AT < 15 && AT > 9) {
+				clothing = `Breaker only`;
+			} else {
+				clothing = ``;
+			}} else {
+				if(AT < 5) {
+					clothing = `Jumper, breaker, thermal and gloves`;
+				}
+			 if(AT < 9 && AT > 5) {
+				clothing = `Jumper, breaker and gloves`;
+			} if(AT < 15 && AT > 9) {
+				clothing = `Jumper only`;
+			} else {
+				clothing = ``;
+			}}
 
 			T = T.toFixed(1);
 			AT = AT.toFixed(1);
