@@ -13,8 +13,8 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 let s = 10,
-		m = 10,
-		h = 8,
+		m = 15,
+		h = 4, //+10 to get MEL time 6AM = 20
 		dd = '*',
 		mm = '*',
 		y = '*';
@@ -30,7 +30,7 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
 	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
 	let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
-	HTMLText = HTMLText + '<h2> Cycling weather </h2>';
+	//HTMLText = HTMLText + '<h2> Cycling weather </h2>';
 
 	fetch(urlWeather)
 		.then(response => response.json())
@@ -66,7 +66,7 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 			T = T.toFixed(1);
 			AT = AT.toFixed(1);
 			let weatherText = `<table style="width:100%"><tr><th>Conditions</th><th>Temperature</th> <th>Humidity</th><th>Wind speed</th><th>Apparent temperature</th></tr><tr><td><a href="http://www.bom.gov.au/products/IDR024.loop.shtml">${body.weather[0].description}</a></td><td>${T} degrees</td> <td>${R} %</td><td>${v} km/hr</td><td>${AT} degrees</td></tr></table>`;
-			HTMLText = HTMLText + '<br />' + clothingText;
+			HTMLText = HTMLText + '<h2> Cycling weather - ' + clothingText + ' </h2> <br />';
 			HTMLText = HTMLText + '<br />' + weatherText + '<br />';
 		}))
 
