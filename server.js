@@ -13,7 +13,7 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 let s = 10,
-		m = 15,
+		m = 20,
 		h = 4, //+10 to get MEL time 6AM = 20
 		dd = '*',
 		mm = '*',
