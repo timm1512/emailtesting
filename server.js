@@ -13,15 +13,15 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 let s = 10,
-		m = 28,
-		h = 4, //+10 to get MEL time 6AM = 20
+		m = 10,
+		h = 20, //+10 to get MEL time 6AM = 20
 		dd = '*',
 		mm = '*',
 		y = '*';
 
 let ATRange = [5, 9, 15];
 let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
-	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"]};
+	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Jumper only"]};
 
 	//change to test pull
 
