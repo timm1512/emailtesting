@@ -13,28 +13,48 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 
 let s = 10,
-		m = 10,
+		m = 30,
 		h = 20, //+10 to get MEL time 6AM = 20
 		dd = '*',
 		mm = '*',
 		y = '*';
 
 let ATRange = [5, 9, 15];
-let clothing = {"rain": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Breaker only"],
-	"dry": ["Jumper, breaker, thermal and gloves", "Jumper, breaker and gloves", "Jumper only"]};
 
-	//change to test pull
+let clothing = {
+	"rain": [
+	{"freezing": "Jumper, breaker, thermal and gloves"},
+	{"cold": "Jumper, breaker and gloves"},
+	{"mild": "Breaker only"}
+	],
+	"dry": [
+		{"freezing": "Jumper, breaker, thermal and gloves"},
+		{"cold": "Jumper, breaker and gloves"},
+		{"mild": "Jumper only"}
+	]};
 
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
-//const GO = () => {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
 	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
 	let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
-	//HTMLText = HTMLText + '<h2> Cycling weather </h2>';
 
 	fetch(urlWeather)
 		.then(response => response.json())
 		.then(body => new Promise(function(resolve, reject) {
+			let clothing = {
+				"rain": [
+				{"freezing": "Jumper, breaker, thermal and gloves"},
+				{"cold": "Jumper, breaker and gloves"},
+				{"mild": "Breaker only"},
+				{"hot": "hot af"}
+				],
+				"dry": [
+					{"freezing": "Jumper, breaker, thermal and gloves"},
+					{"cold": "Jumper, breaker and gloves"},
+					{"mild": "Jumper only"},
+					{"hot": "hot af"}
+				]};
+			let clothingText;
 			let T = body.main.temp;
 			let v = body.wind.speed;
 			let R = body.main.humidity;
@@ -43,27 +63,26 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 
 			if(body.weather[0].description.includes('rain')) {
 				if(AT < ATRange[0]) {
-					clothingText = clothing.rain[0];
+					clothingText = clothing.rain[0].freezing;
 				}
-			 if(AT < ATRange[1] && AT > ATRange[0]) {
-				clothingText = clothing.rain[1];
-			} if(AT < ATRange[2] && AT > ATRange[1]) {
-				clothingText = clothing.rain[2];
+			 else if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing.rain[1].cold;
+			} else if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing.rain[2].mild;
 			} else {
-				clothingText = ``;
+				clothingText = clothing.rain[3].hot;
 			}} else {
 				if(AT < ATRange[0]) {
-					clothingText = clothing.dry[0];
+					clothingText = clothing.dry[0].freezing;
 				}
-			 if(AT < ATRange[1] && AT > ATRange[0]) {
-				clothingText = clothing.dry[1];
-			} if(AT < ATRange[2] && AT > ATRange[1]) {
-				clothingText = clothing.dry[2];
+			 else if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing.dry[1].cold;
+			} else if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing.dry[2].mild;
 			} else {
-				clothingText = ``;
+				clothingText = clothing.dry[3].hot;
 			}}
 
-			T = T.toFixed(1);
 			AT = AT.toFixed(1);
 			let weatherText = `<table style="width:100%"><tr><th>Conditions</th><th>Temperature</th> <th>Humidity</th><th>Wind speed</th><th>Apparent temperature</th></tr><tr><td><a href="http://www.bom.gov.au/products/IDR024.loop.shtml">${body.weather[0].description}</a></td><td>${T} degrees</td> <td>${R} %</td><td>${v} km/hr</td><td>${AT} degrees</td></tr></table>`;
 			HTMLText = HTMLText + '<h2> Cycling weather - ' + clothingText + ' </h2> <br />';
@@ -107,7 +126,5 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 	      }
 	      })
 	    }));
-});
-//};
-
-//GO();
+		});
+};
