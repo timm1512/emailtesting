@@ -26,14 +26,18 @@ let clothing = {
 	{"freezing": "Jumper, breaker, thermal and gloves"},
 	{"cold": "Jumper, breaker and gloves"},
 	{"mild": "Breaker only"}
-	],
+],
 	"dry": [
 		{"freezing": "Jumper, breaker, thermal and gloves"},
 		{"cold": "Jumper, breaker and gloves"},
 		{"mild": "Jumper only"}
 	]};
 
-const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
+prepEmail;
+
+const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, prepEmail);
+
+const prepEmail =	function() {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;}</style></head><body>';
 	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
 	let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
@@ -126,5 +130,5 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${y}`, function() {
 	      }
 	      })
 	    }));
-		});
+		};
 //};
