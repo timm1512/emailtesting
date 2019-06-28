@@ -53,7 +53,7 @@ functionStore = {
 		return datesString;
 	},
 
-	convertTimestamp : function convertTimestamp(timestamp) {
+	convertTimestamp : function convertTimestamp(timestamp, format) {
 	  var d = new Date(timestamp * 1000),	// Convert the passed timestamp to milliseconds
 			yyyy = d.getFullYear(),
 			mm = ('0' + (d.getMonth() + 1)).slice(-2),	// Months are zero based. Add leading 0.
@@ -75,7 +75,11 @@ functionStore = {
 		}
 
 		// ie: 2013-02-18, 8:35 AM
-		time = dd + '-' + mm + '-' + yyyy; // + ', ' + h + ':' + min + ' ' + ampm;
+		if(format == 'day') {
+			time = dd + '-' + mm + '-' + yyyy; // + ', ' + h + ':' + min + ' ' + ampm;
+		} else {
+			time = h + ':' + min + ' ' + ampm;
+		}
 		return time;
 	}
 }
