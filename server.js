@@ -3,10 +3,10 @@ const index = require('./index.js');
 const config = require('../secrets.js');
 const nodemailer = require('nodemailer');
 const schedule = require('node-schedule');
-// const express = require('express');
+const express = require('express');
 // const timestamp = require('unix-timestamp');
 // const bodyParser = require('body-parser');
-// const request = require('request');
+const request = require('request');
 // const app = express();
 
 require('es6-promise').polyfill();
@@ -20,10 +20,11 @@ let s = 10,
 		dow = '*';
 
 let ATRange = [5, 9, 15];
+let breed = "s/chow/"; //needs to start with s/ to account for different endpoints
 
-var feedbackLoop = {
-	AT: [],
-	condition: [],
+feedbackLoop = {
+	AT: [34],
+	condition: ['hot af'],
 	verdict: [],
 	recordTemp: function(AT, condition) {
 		feedbackLoop.AT.push(AT);
@@ -39,7 +40,8 @@ function prepEmail() {
 	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;} .center {display:block; margin-left:auto; margin-right:auto}</style></head><body>';
 	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
 	let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
-	let urlPuppies = `https://random.dog/woof.json`;
+	//let urlPuppies = `https://random.dog/woof.json`; dropped it due to so many failed calls
+	let urlDogs = `https://dog.ceo/api/breed` + breed + `images/random`;
 
 	fetch(urlWeather)
 		.then(response => response.json())
@@ -108,10 +110,12 @@ function prepEmail() {
 			HTMLText = HTMLText + '<br />' + weatherText + '<br />';
 		}))
 
-	fetch(urlPuppies)
+	fetch(urlDogs)
 		.then(response => response.json())
 		.then(body => new Promise(function(resolve, reject) {
-			HTMLText = HTMLText + `<img src="${body.url}" class="center" width="50%">  </img> <br />`;
+			console.log(urlDogs);
+			console.log(body.message);
+			HTMLText = HTMLText + `<img src="${body.message}" class="center" width="50%">  </img> <br />`;
 		}))
 
 	fetch(urlNewsBusiness)
@@ -153,4 +157,4 @@ function prepEmail() {
 	      })
 	    }));
 		};
-//prepEmail();
+prepEmail();

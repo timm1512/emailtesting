@@ -11,36 +11,199 @@ const nodemailer = require('nodemailer');
 const request = require('request');
 const schedule = require('node-schedule');
 const app = express();
-const server = require('./server.js');
+//var server = require('./server');
 const config = require('../secrets.js');
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
 
-functionStore = {
-	FXParse : function FXParse(pair) {
-		let url = `https://forex.1forge.com/1.0.3/quotes?pairs=${pair}&api_key=${apiKeyForex}`;
-		request(url, function (err, response, bodyRate) {
-			let rate = JSON.parse(bodyRate);
-			rateText = `${rate[0].symbol} : ${(rate[0].price.toFixed(3))*100}`;
-		})
-		return rateText;
-	},
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended:true }));
+app.set('view engine','ejs')
 
-	NASAParse : function NASAParse() {
-		var imageNASA = {URL: ["Initialise"], caption: ["Initialise"], title: ["Initialise"]};
-		let url = `https://api.nasa.gov/planetary/apod?api_key=${apiKeyNASA}`;
-		request(url, function (err, response, body) {
-			let image = JSON.parse(body);
-			if(err) {
-				console.log('FAILED');
+app.get('/', function (req, res) {
+	res.render('index', {temp: feedbackLoop.AT, rating: feedbackLoop.condition});
+})
+
+app.listen(8080, function () {
+  console.log('Page started on 8080')
+})
+
+let s = 10,
+		m = 13,
+		h = 20, //+10 to get MEL time 6AM = 20
+		dd = '*',
+		mm = '*',
+		dow = '*';
+
+let ATRange = [5, 9, 15];
+var dogLink = ["str1", "str2"];
+
+feedbackLoop = {
+	AT: [34],
+	condition: ['hot af'],
+	verdict: [],
+	recordTemp: function(AT, condition) {
+		feedbackLoop.AT.push(AT);
+		feedbackLoop.condition.push(condition);
+	}
+};
+
+const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${dow}`, function() {
+	prepEmail();
+});
+
+
+	const dogCall1 = callback => {
+			let urlDogs = `https://random.dog/woof.json`;
+			fetch(urlDogs)
+			.then(response => response.json())
+			.then(body => dogLink[0] = body.url)
+	}
+const dogCall2 = callback => {
+	let urlDogs = `https://random.dog/woof.json`;
+	fetch(urlDogs)
+	.then(response => response.json())
+	.then(body => {
+		dogLink[1] = body.url;
+		callback({text: "end"})
+})
+}
+
+function prepEmail() {
+	let HTMLText = '<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;border-collapse: collapse;}th, td {padding: 5px;text-align: center;} .center {display:block; margin-left:auto; margin-right:auto}</style></head><body>';
+	let urlNewsBusiness = `https://newsapi.org/v2/top-headlines?country=au&category=business&apiKey=${config.apiKeyNews}`;
+	let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
+	let urlDogs = `https://random.dog/woof.json`;
+	var dogLink;
+
+	fetch(urlWeather)
+		.then(response => response.json())
+		.then(body => new Promise(function(resolve, reject) {
+			let clothing = {
+				"rain": [
+				{"freezing": "Jumper, breaker, thermal and gloves"},
+				{"cold": "Jumper, breaker and gloves"},
+				{"mild": "Breaker only"},
+				{"hot": "hot af"}
+				],
+				"dry": [
+					{"freezing": "Jumper, breaker, thermal and gloves"},
+					{"cold": "Jumper, breaker and gloves"},
+					{"mild": "Jumper only"},
+					{"hot": "hot af"}
+				]};
+			let clothingText;
+			let condition;
+			let T = body.main.temp;
+			let v = body.wind.speed;
+			let R = body.main.humidity;
+			//SRText = functionStore.convertTimestamp(body.sys.sunrise, 'hour');
+			firstLightText = functionStore.convertTimestamp(body.sys.sunrise-20*60, 'hour');
+			//SSText = functionStore.convertTimestamp(body.sys.sunset, 'hour');
+			e = R/100*6.105*Math.exp((17.27*T/(237.7+T)));
+			let AT = T+0.33*e-0.7*v/3.6-4;
+
+			if(body.weather[0].description.includes('rain')) {
+				if(AT < ATRange[0]) {
+					clothingText = clothing.rain[0].freezing;
+					condition = 'freezing';
+				}
+			 else if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing.rain[1].cold;
+				condition = 'cold';
+			} else if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing.rain[2].mild;
+				condition = 'mild';
 			} else {
-				imageNASA.URL = image.url;
-				imageNASA.caption = image.explanation;
-				imageNASA.title = image.title;
-				return imageNASA;
+				clothingText = clothing.rain[3].hot;
+				condition = 'hot';
+			}} else {
+				if(AT < ATRange[0]) {
+					clothingText = clothing.dry[0].freezing;
+					condition = 'freezing';
+				}
+			 else if(AT < ATRange[1] && AT > ATRange[0]) {
+				clothingText = clothing.dry[1].cold;
+				condition = 'cold';
+			} else if(AT < ATRange[2] && AT > ATRange[1]) {
+				clothingText = clothing.dry[2].mild;
+				condition = 'mild';
+			} else {
+				clothingText = clothing.dry[3].hot;
+				condition = 'hot';
+			}}
+
+			AT = AT.toFixed(1);
+			let weatherText = `<table style="width:100%"><tr><th>Conditions</th><th>Temperature</th> <th>Humidity</th><th>Wind speed</th><th>Apparent temperature</th></tr><tr><td><a href="http://www.bom.gov.au/products/IDR024.loop.shtml">${body.weather[0].description}</a></td><td>${T} degrees</td> <td>${R} %</td><td>${v} km/hr</td><td>${AT} degrees</td></tr></table>`;
+			HTMLText = HTMLText + '<h2> First Light at ' + firstLightText + ' - ' + clothingText + ' </h2>';
+			HTMLText = HTMLText + '<br />' + weatherText + '<br />';
+
+			feedbackLoop.recordTemp(AT, condition);
+			//console.log('method check AT', feedbackLoop.AT);
+			//console.log('method check condition', feedbackLoop.condition);
+		}))
+
+		setTimeout(() => dogCall1, 2000);
+		setTimeout(() => dogCall2, 2000);
+		dogCall2(value => {
+			console.log(dogLink);
+			if(dogLink[0].includes(`mp4`)) {
+				HTMLText = HTMLText + `<img src="${dogLink[1]}" class="center" width="50%">  </img> <br />`;
+			} else {
+				HTMLText = HTMLText + `<img src="${dogLink[0]}" class="center" width="50%">  </img> <br />`;
 			}
 		})
-		console.log('End Function:', imageNASA);
-	},
 
+		// fetch(urlDogs)
+		// 	.then(response => response.json())
+		// 	.then(body => new Promise(function(resolve, reject) {
+		// 		HTMLText = HTMLText + `<img src="${body.url}" class="center" width="50%">  </img> <br />`;
+		// }))
+
+
+	fetch(urlNewsBusiness)
+	  .then(response => response.json())
+	  .then(body => new Promise(function(resolve, reject) {
+
+			HTMLText = HTMLText + '<h2> New articles </h2> <br />';
+	    body.articles.forEach(function(stories) {
+	      if(stories.source.id == 'australian-financial-review' ||
+	        stories.source.name == 'Businessinsider.com.au' ||
+	        stories.source.name == 'Theaustralian.com.au') {
+	          HTMLText = HTMLText + '<a href = ' + stories.url + '>' + stories.title + '</a>' +
+	            '<br />' + '<i>' + stories.source.name + '</i>' +
+	            '<br />' + stories.description + '<br /><br />';
+	        }})
+	      resolve(HTMLText);}))
+	  .then(HTMLText => new Promise(function(resolve, reject) {
+				const currentDate = new Date();
+				dateText = functionStore.convertTimestamp(currentDate/1000, 'day');
+	      let mailOptions = {
+	      from: 'timjstesting@gmail.com',
+	      to: 'timothy.maltby@gmail.com',
+				//cc: 'kashad49@gmail.com',
+	      subject: `Update for ${dateText}`,
+	      html: HTMLText +'</body></html>'
+	      };
+				const transporter = nodemailer.createTransport({
+					service: 'gmail',
+					auth: {
+						user: 'timjstesting@gmail.com',
+						pass: config.emailPassword
+					}
+				});
+	      transporter.sendMail(mailOptions, function(error, info){
+	      if (error) {
+	        console.log(error);
+	      } else {
+	        console.log('Email sent: ' + info.response);
+	      }
+	      })
+	    }));
+		};
+prepEmail();
+
+functionStore = {
 	getTodayDate : function getTodayDate() {
 		var d = Date.now()/1000,
 
@@ -83,127 +246,3 @@ functionStore = {
 		return time;
 	}
 }
-
-// app.listen(8080, function () {
-//   console.log('Page started')
-// })
-
-// const transporter = nodemailer.createTransport({
-// 	service: 'gmail',
-// 	auth: {
-// 		user: 'timjstesting@gmail.com',
-// 		pass: config.emailPassword
-// 	}
-// });
-
-var rateText = ["Initialise"];
-var asteroidDayArray = ["Initialise"];
-var asteroidDistanceArray = ["Initialise"];
-var asteroidSpeedArray = ["Initialise"];
-var imageNASA = {title: ["Initialise"], URL: ["Initialise"], caption: ["Initialise"]};
-var today = ["day", "month", "year"];
-var launchArray = {number: ["Initialise"], date: ["Initialise"], rocket: ["Initialise"]};
-var newsData = {'business': ["ARTICLES"], 'world': ["ARTICLES"], 'tech': ["ARTICLES"]};
-
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended:true }));
-app.set('view engine','ejs')
-
-app.get('/', function (req, res) {
-	let pair = `AUDUSD`;
-	//Parse NASA
-	// let urlNASA = `https://api.nasa.gov/planetary/apod?api_key=${apiKeyNASA}`;
-	// request(urlNASA, function (err, response, body) {
-	// 	let image = JSON.parse(body);
-	// 	if(err) {
-	// 		console.log('FAILED');
-	// 	} else {
-	// 		imageNASA.URL = image.url;
-	// 		imageNASA.caption = image.explanation;
-	// 		imageNASA.title = image.title;
-	// 		return imageNASA;
-	// 	}
-	// })
-	console.log(imageNASA);
-	//ParseFX
-	let urlFX = `https://forex.1forge.com/1.0.3/quotes?pairs=${pair}&api_key=${config.apiKeyForex}`;
-	request(urlFX, function (err, response, bodyRate) {
-		let rate = JSON.parse(bodyRate);
-		rateText = `${rate[0].symbol} : ${(rate[0].price.toFixed(3))*100}`;
-	})
-	res.render('index', {ImageNASA: imageNASA, FX: rateText, weather: null, error: null});
-})
-
-
-app.post('/spacex', function (req, res) {
-	let url=`https://api.spacexdata.com/v3/launches/upcoming`;
-	request(url, function (err, response, body) {
-		if(err){
-			console.log('Failed at request');
-		}  else {
-			let launch = JSON.parse(body);
-				for (i=0; i<launch.length; i++) {
-					launchArray.number[i] = `Flight ${launch[i].flight_number}`;
-					launchArray.date[i] = `${launch[i].launch_date_utc.substring(0,10)}`;
-					launchArray.rocket[i] = `${launch[i].rocket.rocket_name}`;
-				}
-		}
-	})
-	res.render('spacex', {LaunchArray: launchArray});
-})
-
-
-
-app.post('/asteroid', function (req, res) {
-	let url = `https://ssd-api.jpl.nasa.gov/cad.api`;
-	request(url, function (err, response, body) {
-		if(err){
-			console.log('Failed at request');
-		} else {
-					let asteroidData = JSON.parse(body);
-					if(asteroidData == undefined){
-						console.log('Failed at call to NASA API');
-		} else {
-				  let dayAsteroids = asteroidData.data;
-					for(i=0; i<dayAsteroids.length; i++) {
-						asteroidDayArray[i] = dayAsteroids[i][3]; //approach date
-						asteroidDistanceArray[i] = Math.floor(dayAsteroids[i][5]*150000000); //distance in km (from au)
-						asteroidSpeedArray[i] = Math.floor(dayAsteroids[i][7]); //speed in km/s
-					}
-		}
-	}
-	var mailOptions = {
-		from: 'timjstesting@gmail.com',
-		to: 'timothy.maltby@gmail.com',
-		subject: 'Test',
-		text: 'Test success'
-	};
-// 	transporter.sendMail(mailOptions, function(error, info){
-//   if (error) {
-//     console.log(error);
-//   } else {
-//     console.log('Email sent: ' + info.response);
-//   }
-// });
-	res.render('asteroid', {asteroidDay: asteroidDayArray, asteroidDistance: asteroidDistanceArray, asteroidSpeed: asteroidSpeedArray});
-});
-})
-
-app.post('/', function (req, res) {
-	let city = req.body.city;
-	console.log('Received from call:', city);
- 	let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${config.apiKeyWeather}`;
-	request(url, function (err, response, body) {
-		if(err){
-			res.render('index', {weather:null, error:'Failed at request'});
-		} else {
-     			let weather = JSON.parse(body);
-      		if(weather.main == undefined){
-        		res.render('index', {weather: null, error: 'Failed at call to API'});
-      		} else {
-			let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}`;
-			res.render('index', {ImageNASA: imageNASA, weather: weatherText, FX: rateText, error: null});
-      		}
-    	}
-  });
-})
