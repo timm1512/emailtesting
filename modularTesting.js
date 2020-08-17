@@ -24,14 +24,14 @@ app.set('view engine','ejs')
 //GENERAL DEFINITIONS//////////
 ///////////////////////////////////////
 
-let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne&units=metric&appid=${config.apiKeyWeather}`;
+let urlWeather = `http://api.openweathermap.org/data/2.5/weather?q=Melbourne,au&units=metric&appid=${config.apiKeyWeather}`;
 let urlDogs = `https://random.dog/woof.json`;
 let urlAdvice = `https://api.adviceslip.com/advice`;
 let output = [];
 
 let s = 10,
 		m = 13,
-		h = 19, //+10 to get MEL time 6AM = 20 in AEDT
+		h = 20, //+10 to get MEL time 6AM = 20 in AEDT
 		dd = '*',
 		mm = '*',
 		dow = '*';
@@ -57,6 +57,7 @@ let clothing = {
 	///////////////////////////////////////
 
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${dow}`, function() {
+//function GO() {
 	getData().then(result => {
 		console.log(output);
 
@@ -122,7 +123,7 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${dow}`, function() 
 		})
 	});
 });
-
+    
 async function getData() {
 	//WEATHER
 	const responseWeather = await fetch(urlWeather);
@@ -164,10 +165,6 @@ async function getData() {
 	output.push(dogURL[0]);
 }
 
-
-
-
-
 ////////////////////////////////////////////////////
 //ADDITIONAL REQUIRED FUNCTIONS
 ///////////////////////////////////////////////////
@@ -178,7 +175,7 @@ functionStore = {
 
 		yyyy = d.getFullYear(),
 		mm = ('0' + (d.getMonth() + 1)).slice(-2),
-		dd = ('0' + d.getDate()).slice(-2),
+		dd = ('0' + d.getDate()).slice(-2),  
 
 		today = [dd, mm, yyyy];
 		dateString = `${today[2]}-${today[1]}-${today[0]}`;
@@ -186,7 +183,7 @@ functionStore = {
 	},
 
 	convertTimestamp : function convertTimestamp(timestamp, format) {
-	  var d = new Date(timestamp * 1000),	// Convert the passed timestamp to milliseconds
+	  var d = new Date((timestamp + 86400) * 1000),	// Add one day, Convert the passed timestamp to milliseconds
 			yyyy = d.getFullYear(),
 			mm = ('0' + (d.getMonth() + 1)).slice(-2),	// Months are zero based. Add leading 0.
 			dd = ('0' + d.getDate()).slice(-2),			// Add leading 0.
