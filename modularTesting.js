@@ -57,6 +57,7 @@ let clothing = {
 	///////////////////////////////////////
 
 const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${dow}`, function() {
+//GO();
 //function GO() {
 	getData().then(result => {
 		console.log(output);
@@ -103,7 +104,7 @@ const GO = schedule.scheduleJob(`${s} ${m} ${h} ${dd} ${mm} ${dow}`, function() 
 		let mailOptions = {
 		from: 'timjstesting@gmail.com',
 		to: 'timothy.maltby@gmail.com',
-		//cc: 'kashad49@gmail.com',
+		cc: 'kashad49@gmail.com',
 		subject: `Update for ${dateText}`,
 		html: HTMLText +'</body></html>'
 		};
